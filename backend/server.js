@@ -18,9 +18,15 @@ app.use("/api/goals", goalsRouter);
 
 app.use("/api", (req, res) => res.status(404).json({ error: "API endpoint not found." }));
 app.use(express.static(path.join(__dirname, "..", "frontend")));
-app.get("*", (req, res, next) => {
+app.use((req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
-  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+
+  res.sendFile(
+    path.join(__dirname, "..", "frontend", "index.html"),
+    (err) => {
+      if (err) next(err);
+    }
+  );
 });
 
 app.use((err, req, res, next) => {
