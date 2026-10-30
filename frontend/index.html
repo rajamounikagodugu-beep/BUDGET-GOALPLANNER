@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plan a budget, set savings goals, and track your spending.">
+  <title>Budget Goal Planner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="Budget Goal Planner home">
+        <span class="brand-icon">₹</span>
+        <span><strong>Budget Goal</strong><small>PLANNER</small></span>
+      </a>
+      <nav class="navigation" aria-label="Main navigation">
+        <a class="nav-link active" href="#dashboard">▦ <span>Overview</span></a>
+        <a class="nav-link" href="#transactions">↕ <span>Transactions</span></a>
+        <a class="nav-link" href="#goals">◎ <span>Savings goals</span></a>
+      </nav>
+      <div class="sidebar-note">
+        <div class="note-icon">✦</div>
+        <strong>Small steps add up.</strong>
+        <p>Every rupee you plan today brings your goals closer.</p>
+      </div>
+      <div class="sidebar-footer">BUDGET GOAL PLANNER <span>Student project</span></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">YOUR MONEY, YOUR PLAN</p>
+          <h1>Good day! <span class="wave">✦</span></h1>
+          <p class="muted">A clear plan makes every goal feel possible.</p>
+        </div>
+        <div class="month-picker">
+          <label for="monthFilter">Planning month</label>
+          <input id="monthFilter" type="month">
+        </div>
+      </header>
+
+      <section id="dashboard" class="summary-grid" aria-label="Budget summary">
+        <article class="summary-card income-card">
+          <div class="card-top"><span>Monthly income</span><span class="metric-icon">↗</span></div>
+          <p class="metric" id="incomeTotal">₹0.00</p>
+          <p class="metric-caption">Income recorded this month</p>
+        </article>
+        <article class="summary-card expense-card">
+          <div class="card-top"><span>Total expenses</span><span class="metric-icon">↘</span></div>
+          <p class="metric" id="expenseTotal">₹0.00</p>
+          <p class="metric-caption">Spending recorded this month</p>
+        </article>
+        <article class="summary-card balance-card">
+          <div class="card-top"><span>Available balance</span><span class="metric-icon">₹</span></div>
+          <p class="metric" id="balanceTotal">₹0.00</p>
+          <p class="metric-caption">Income minus expenses</p>
+        </article>
+        <article class="summary-card savings-card">
+          <div class="card-top"><span>Goal progress</span><span class="metric-icon">◎</span></div>
+          <p class="metric" id="goalProgress">0%</p>
+          <p class="metric-caption">Across your savings goals</p>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel" id="transactions">
+          <div class="panel-heading">
+            <div><p class="eyebrow">KEEP TRACK</p><h2>Recent transactions</h2></div>
+            <button class="button button-primary" id="addTransactionBtn">＋ Add transaction</button>
+          </div>
+          <div class="toolbar">
+            <input id="searchTransactions" type="search" placeholder="Search transactions…" aria-label="Search transactions">
+            <select id="typeFilter" aria-label="Filter by type">
+              <option value="all">All types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Transaction</th><th>Category</th><th>Date</th><th>Amount</th><th></th></tr></thead>
+              <tbody id="transactionRows"><tr><td colspan="5" class="empty-cell">Loading transactions…</td></tr></tbody>
+            </table>
+          </div>
+          <p class="footnote">Your transaction history is stored in your Supabase database.</p>
+        </article>
+
+        <article class="panel" id="goals">
+          <div class="panel-heading">
+            <div><p class="eyebrow">LOOK AHEAD</p><h2>Savings goals</h2></div>
+            <button class="button button-soft" id="addGoalBtn">＋ New goal</button>
+          </div>
+          <div id="goalList" class="goal-list"><p class="empty-state">Loading goals…</p></div>
+        </article>
+      </section>
+
+      <section class="panel budget-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">PLAN WITH PURPOSE</p><h2>Monthly spending snapshot</h2></div>
+          <span class="pill" id="monthLabel">This month</span>
+        </div>
+        <div class="snapshot-grid">
+          <div class="snapshot-item"><span class="snapshot-dot dot-income"></span><div><span>Income</span><strong id="snapshotIncome">₹0.00</strong></div></div>
+          <div class="snapshot-item"><span class="snapshot-dot dot-expense"></span><div><span>Expenses</span><strong id="snapshotExpense">₹0.00</strong></div></div>
+          <div class="snapshot-item"><span class="snapshot-dot dot-balance"></span><div><span>Left to plan</span><strong id="snapshotBalance">₹0.00</strong></div></div>
+        </div>
+        <div class="progress-track"><div id="spendingBar" class="progress-fill"></div></div>
+        <p id="spendingMessage" class="muted small">Add transactions to see your monthly spending snapshot.</p>
+      </section>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <dialog id="transactionDialog" class="modal">
+    <form id="transactionForm">
+      <div class="modal-heading"><div><p class="eyebrow">MONEY MOVEMENT</p><h2 id="transactionDialogTitle">Add transaction</h2></div><button type="button" class="icon-button" data-close="transactionDialog" aria-label="Close">×</button></div>
+      <label for="transactionTitle">Title</label><input id="transactionTitle" name="title" maxlength="90" required placeholder="e.g. Hostel fee">
+      <div class="form-row">
+        <div><label for="transactionType">Type</label><select id="transactionType" name="type"><option value="expense">Expense</option><option value="income">Income</option></select></div>
+        <div><label for="transactionAmount">Amount (₹)</label><input id="transactionAmount" name="amount" type="number" min="0.01" step="0.01" required placeholder="0.00"></div>
+      </div>
+      <div class="form-row">
+        <div><label for="transactionCategory">Category</label><select id="transactionCategory" name="category"><option>Food</option><option>Travel</option><option>Education</option><option>Shopping</option><option>Hostel</option><option>Salary</option><option>Allowance</option><option>Savings</option><option>Bills</option><option>Other</option></select></div>
+        <div><label for="transactionDate">Date</label><input id="transactionDate" name="date" type="date" required></div>
+      </div>
+      <label for="transactionNotes">Notes (optional)</label><textarea id="transactionNotes" name="notes" maxlength="500" rows="2" placeholder="Add a short note"></textarea>
+      <p class="form-error" id="transactionError"></p>
+      <div class="modal-actions"><button type="button" class="button button-soft" data-close="transactionDialog">Cancel</button><button type="submit" class="button button-primary">Save transaction</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="goalDialog" class="modal">
+    <form id="goalForm">
+      <div class="modal-heading"><div><p class="eyebrow">YOUR NEXT MILESTONE</p><h2>Create savings goal</h2></div><button type="button" class="icon-button" data-close="goalDialog" aria-label="Close">×</button></div>
+      <label for="goalTitle">Goal name</label><input id="goalTitle" name="title" maxlength="90" required placeholder="e.g. New laptop">
+      <div class="form-row"><div><label for="goalTarget">Target amount (₹)</label><input id="goalTarget" name="target_amount" type="number" min="0.01" step="0.01" required></div><div><label for="goalSaved">Already saved (₹)</label><input id="goalSaved" name="saved_amount" type="number" min="0" step="0.01" value="0" required></div></div>
+      <label for="goalDate">Target date (optional)</label><input id="goalDate" name="target_date" type="date">
+      <p class="form-error" id="goalError"></p>
+      <div class="modal-actions"><button type="button" class="button button-soft" data-close="goalDialog">Cancel</button><button type="submit" class="button button-primary">Save goal</button></div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
